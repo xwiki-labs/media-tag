@@ -14,7 +14,8 @@
     "start": "webpack-dev-server",
     "xo": "xo",
     "karma": "karma start",
-    "mocha": "nyc _mocha ./test/media-tag.js"
+    "mocha": "nyc _mocha ./test/media-tag.js",
+    "cryptpad": "NODE_ENV=production-umd npm run build"
   },
   "esdoc": {
     "source": "./src/",
