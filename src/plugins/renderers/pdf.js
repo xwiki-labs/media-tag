@@ -20,9 +20,16 @@ class PdfRenderer extends Renderer {
 		// Get the pdf url
 		const url = mediaObject.getAttribute('src');
         const iframe = document.createElement('iframe');
-        iframe.src = url;
-        iframe.height = '100vw';
-        iframe.width = '100%';
+        var attrs = {
+            src: url,
+            height: '100vw',
+            width: '100%',
+            //sandbox: true,
+        };
+
+        Object.keys(attrs).forEach(function (k) {
+            iframe.setAttribute(k, attrs[k]);
+        });
 
         //mediaObject.utilsSetAllDataAttributes(iframe);
 		mediaObject.replaceContents([iframe]);
