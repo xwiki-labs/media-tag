@@ -81,9 +81,8 @@ class Cryptopad {
      * @return     {String}  The random key string.
      */
     static getRandomKeyStr() {
-        const Nacl = Cryptopad.Nacl;
-        const rdm = Nacl.randomBytes(18);
-        return Nacl.util.encodeBase64(rdm);
+        window.nacl.randomBytes(18);
+        return window.nacl.util.encodeBase64(rdm);
     }
 
     /**
@@ -93,7 +92,7 @@ class Cryptopad {
      * @return     {Uint8Array}  The key = require(string.
      */
     static getKeyFromStr(str) {
-        return Cryptopad.Nacl.util.decodeBase64(str);
+        return window.nacl.util.decodeBase64(str);
     }
 
     /**
@@ -105,8 +104,8 @@ class Cryptopad {
      */
     static encrypt(u8, key) {
         const array = u8;
-        const nonce = Cryptopad.Nacl.randomBytes(24);
-        const packed = Cryptopad.Nacl.secretbox(array, nonce, key);
+        const nonce = window.nacl.randomBytes(24);
+        const packed = window.nacl.secretbox(array, nonce, key);
         if (packed) {
             return new Uint8Array(Cryptopad.slice(nonce).concat(Cryptopad.slice(packed)));
         }
@@ -121,7 +120,7 @@ class Cryptopad {
      * @return     object YOLO
      */
     static decrypt (u8, key, done) {
-        const Nacl = Cryptopad.Nacl;
+        const Nacl = window.nacl;
 
         const progress = function (offset) {
             const ev = new Event('decryptionProgress');
@@ -142,10 +141,10 @@ class Cryptopad {
 
         var metaBox = new Uint8Array(u8.subarray(2, 2 + metadataLength));
 
-        var metaChunk = Nacl.secretbox.open(metaBox, nonce, key);
+        var metaChunk = window.nacl.secretbox.open(metaBox, nonce, key);
         Cryptopad.increment(nonce);
 
-        try { res.metadata = JSON.parse(Nacl.util.encodeUTF8(metaChunk)); }
+        try { res.metadata = JSON.parse(window.nacl.util.encodeUTF8(metaChunk)); }
         catch (e) { return done('E_METADATA_DECRYPTION'); }
 
         if (!res.metadata) { return done('NO_METADATA'); }
@@ -158,7 +157,7 @@ class Cryptopad {
                 const box = new Uint8Array(u8.subarray(start, end));
 
                 // decrypt the chunk
-                const plaintext = Nacl.secretbox.open(box, nonce, key);
+                const plaintext = window.nacl.secretbox.open(box, nonce, key);
                 Cryptopad.increment(nonce);
 
                 if (!plaintext) { return void cb('DECRYPTION_FAILURE'); }
@@ -192,10 +191,6 @@ class Cryptopad {
         again();
     };
 }
-/**
- * Binds the extern nacl lib to Crypto.
- */
-Cryptopad.Nacl = window.nacl;
 
 /**
  * Class for data manager.
@@ -251,7 +246,7 @@ class DataManager {
      * @return     {string}  The data url.
      */
     static getDataUrl(data, mtype) {
-        return 'data:' + mtype + ';base64,' + Cryptopad.Nacl.util.encodeBase64(data);
+        return 'data:' + mtype + ';base64,' + window.nacl.util.encodeBase64(data);
     }
 }
 
@@ -356,30 +351,35 @@ function algorithm(mediaObject) {
                 mediaObject.setAttribute('src', url);
                 mediaObject.removeAttribute('data-crypto-key');
 
-                console.log(decrypted.metadata);
+                // console.log(decrypted.metadata);
 
                 if (/audio\/(mp3|ogg|wav|webm|mpeg)/.test(decrypted.metadata.type)) {
                     // audio types should do the right thing.
                 } else if (/application\/pdf/.test(decrypted.metadata.type)) {
                     // let it be
-
+                    decrypted.metadata.type = 'download';
                 } else if (/video\//.test(decrypted.metadata.type)) {
                     // let it be
-
+                    // console.log(decrypted.metadata.type);
                 } else if (!/image\/(png|jpeg|jpg|gif)/.test(decrypted.metadata.type)) {
                     // if it's not an image, present a download link
                     decrypted.metadata.type = 'download';
                 }
 
-                console.log(decrypted.metadata);
+                //console.log(decrypted.metadata);
                 applyMetadata(mediaObject, decrypted.metadata);
 
-                decryptionEvent.callback = function () {
+                decryptionEvent.callback = function (f) {
+                    decryptionEvent.callback = function () {};
+
                     /**
                      * Filters must call chain to try if the
                      * current mediaObject matches other filters.
                      */
                     MediaTag.processingEngine.return(mediaObject);
+                    if (typeof(f) === 'function') {
+                        f(mediaObject);
+                    }
                 };
 
                 window.document.dispatchEvent(decryptionEvent);
