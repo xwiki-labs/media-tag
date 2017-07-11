@@ -30,6 +30,8 @@ class MediaObject {
 		 * @type {Object} attributesObject Object with attributes that will specify the contents.
 		 */
 		this.attributesObject = MediaObject.attributesObject(rootElement);
+		MediaObject.rootElement = rootElement;
+		this.rootElement = rootElement;
 
 		/**
 		 * @type {HTMLElement} rootElement HTMLElement DOM Node that acts as
