@@ -97,21 +97,9 @@ class Cryptopad {
     }
 
     /**
-     * Encrypts a Uint8Array with the given key.
-     *
-     * @param      {<type>}      u8      The u 8
-     * @param      {<type>}      key     The key
-     * @return     {Uint8Array}  The encrypted content.
+     * STUBBED. Use CryptPad to encrypt
      */
-    static encrypt(u8, key) {
-        const array = u8;
-        const nonce = window.nacl.randomBytes(24);
-        const packed = window.nacl.secretbox(array, nonce, key);
-        if (packed) {
-            return new Uint8Array(Cryptopad.slice(nonce).concat(Cryptopad.slice(packed)));
-        }
-        throw new Error();
-    }
+    static encrypt() {}
 
     /**
      * Decrypts a Uint8Array with the given key.
@@ -369,7 +357,7 @@ function algorithm(mediaObject) {
 
     var Cache = MediaTag.__Cryptpad_Cache = MediaTag.__Cryptpad_Cache || {};
     if (Cache[uid]) {
-        return followUp(Cache[uid]);
+        return setTimeout(function () { followUp(Cache[uid]); });
     }
 
     xhr.open('GET', src, true);
