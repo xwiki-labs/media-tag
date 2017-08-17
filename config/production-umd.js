@@ -14,8 +14,8 @@ const plugin = [
 	new webpack.optimize.UglifyJsPlugin({
 		sourceMap: false,
 		beautify: false,
-		mangle: true,	
-		compress: true,
+		mangle: false, //true,	
+		compress: false, //true,
 		comments: false // /[a-zA-Z]+[ ]*[0-9]*[ ]*/
 	})
 ];
