@@ -22,7 +22,7 @@ class PdfRenderer extends Renderer {
 	 * @param      {MediaObject}  mediaObject  The media object
 	 */
 	process(mediaObject) {
-		const url = mediaObject.getAttribute('src');
+		const url = mediaObject.getAttribute('src') + '?' + window.encodeURIComponent(mediaObject.name);
 		const iframe = document.createElement('iframe');
 
 		/**
